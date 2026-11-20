@@ -1,6 +1,6 @@
 # Fichiers d’impression 3D
 
-Ce dossier est prêt à recevoir les fichiers du boîtier du projet **Pro Micro + Tuya**. Aucun modèle 3D n’est encore fourni.
+Ce dossier est prêt à recevoir les fichiers du boîtier du projet **MicroKey**. Aucun modèle 3D n’est encore fourni.
 
 ![Illustration des pièces du boîtier](../images/impression_3d.png)
 

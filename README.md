@@ -1,4 +1,4 @@
-# Pro Micro + Tuya — démarrer son serveur à distance
+# MicroKey — démarrer son serveur à distance
 
 **Allumer un serveur, attendre son écran de connexion, puis lui faire taper son mot de passe depuis Smart Life ou Tuya Smart.**
 
@@ -87,8 +87,8 @@ Faire les raccordements hors tension. Ne pas relier le GND du Pro Micro au conne
 Prérequis : **Linux ou macOS**, Python **3.10 ou plus récent** avec `venv`, `make`, un accès Internet pour la première installation et un câble USB de données. L’installation automatique des outils Arduino prend en charge Linux/macOS en x86-64 ou ARM64.
 
 ```sh
-git clone https://github.com/Chrisnox-209/pro-micro-tuya-server.git
-cd pro-micro-tuya-server
+git clone https://github.com/Chrisnox-209/MicroKey.git
+cd MicroKey
 make run
 ```
 

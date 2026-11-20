@@ -1,4 +1,4 @@
-# Pro Micro Key — guide technique
+# MicroKey — guide technique
 
 Ce guide détaille la web app, le firmware et le dépannage USB. Pour comprendre le montage complet avec les deux relais Smart Life/Tuya, commencer par le [README principal](../README.md).
 
