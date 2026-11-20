@@ -1,0 +1,15 @@
+.venv/
+.runtime/
+.tools/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Métadonnées et fichiers propres au poste de développement
+.agents/
+.codex/
+.aws/
+.env
+.env.*
+!.env.example
+.DS_Store
