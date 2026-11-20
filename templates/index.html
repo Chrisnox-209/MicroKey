@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="description" content="Votre Pro Micro, configuré simplement. Mot de passe, déclenchement USB ou bouton et flash local.">
+  <meta name="color-scheme" content="dark">
+  <script src="{{ url_for('static', filename='theme-init.js') }}"></script>
+  <title>Pro Micro Key — Votre raccourci USB</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" type="module"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="MicroKey, accueil">MicroKey<span>.</span></a>
+    <nav class="tabs" aria-label="Étapes de configuration" role="tablist"><button class="tab active" id="tab-configure" type="button" role="tab" aria-selected="true" aria-controls="view-configure" data-view="configure"><span>01</span> Configurer</button><button class="tab" id="tab-install" type="button" role="tab" aria-selected="false" aria-controls="view-install" data-view="install"><span>02</span> Installer</button><button class="tab" id="tab-test" type="button" role="tab" aria-selected="false" aria-controls="view-test" data-view="test"><span>03</span> Tester</button></nav>
+    <div class="header-actions"><label class="theme-toggle" for="theme-switch"><span aria-hidden="true">☀</span><input type="checkbox" id="theme-switch" role="switch" aria-label="Mode sombre"><span class="theme-track" aria-hidden="true"></span><span aria-hidden="true">☾</span></label><a class="header-cta" id="open-workspace" href="#atelier">Mon atelier <span>↗</span></a></div>
+  </header>
+  <main>
+    <section class="intro"><div class="eyebrow"><span>✦</span> Votre clavier de poche</div><h1>Votre mot de passe.<br>Au bon moment.</h1><p>Au branchement USB ou d’un simple appui sur un bouton.<br>Configurez votre Pro Micro, il s’occupe de la saisie.</p><div class="hero-actions"><a class="button primary" id="open-configurator" href="#atelier">Configurer ma carte <span>→</span></a><a class="button secondary" id="open-installer" href="#atelier"><span>↓</span> Installer le firmware</a></div><div class="hero-meta"><span><i></i> 100 % local</span><span>USB ou bouton</span><span>AZERTY & QWERTY</span></div></section>
+    <div class="atelier-heading"><span class="section-tag">VOTRE ATELIER</span><h2>Une carte. Vos réglages.</h2><p>Branchez votre Pro Micro, puis choisissez comment il doit agir.</p></div>
+
+    <section class="connection-bar" id="atelier" aria-label="Connexion à la carte"><span class="connection-indicator" id="connection-indicator"></span><div class="connection-title"><strong id="connection-title">Recherche de la carte…</strong><small id="device-name">Branchez votre Pro Micro en USB</small></div><div class="port-actions"><select id="port" aria-label="Port série USB"><option value="">Recherche des ports…</option></select><button class="icon-button" id="refresh-button" type="button" aria-label="Actualiser les ports">↻</button><button class="button secondary" id="read-button" type="button" disabled>Connecter <span>→</span></button></div></section>
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+    <div class="workspace">
+      <div class="settings-column">
+        <section class="panel tab-view" id="view-configure" role="tabpanel" aria-labelledby="tab-configure">
+          <div class="section-heading"><div><h2>À vous de choisir.</h2><p>Réglez le déclenchement, puis enregistrez sur la carte.</p></div><span class="section-symbol">⌘</span></div>
+          <form id="config-form" autocomplete="off">
+            <fieldset class="mode-fieldset"><legend>Quand saisir le mot de passe ?</legend><div class="mode-options">
+              <label class="mode-option"><input type="radio" name="trigger-mode" value="usb" checked><span><i>↳</i><strong>Au branchement</strong><small>Une fois à chaque connexion USB.</small><b class="choice-dot"></b></span></label>
+              <label class="mode-option"><input type="radio" name="trigger-mode" value="button"><span><i>◉</i><strong>Avec un bouton</strong><small>Uniquement lorsque vous appuyez.</small><b class="choice-dot"></b></span></label>
+              <label class="mode-option compact"><input type="radio" name="trigger-mode" value="both"><span><strong>Les deux</strong><small>Au branchement et à chaque appui.</small><b class="choice-dot"></b></span></label>
+            </div></fieldset>
+
+            <div class="pin-settings" id="pin-settings" hidden><div><label class="field-label" for="trigger-pin">Broche du bouton</label><select id="trigger-pin">{% for pin, label in pins.items() %}<option value="{{ pin }}"{% if pin == 4 %} selected{% endif %}>{{ label }}{% if pin == 4 %} · conseillée{% endif %}</option>{% endfor %}</select></div><p>Choisissez ici ou cliquez directement sur le schéma.<br>Reliez le bouton entre <strong id="pin-inline-label">D4</strong> et <strong>GND</strong>.</p></div>
+
+            <div class="form-divider"></div>
+            <label class="field-label" for="password">Votre mot de passe <span id="password-count">0 / 128</span></label>
+            <div class="password-field"><span aria-hidden="true">⚿</span><input type="password" id="password" autocomplete="new-password" placeholder="Le mot de passe que la carte doit taper" maxlength="128" spellcheck="false" required><button id="toggle-password" type="button" aria-label="Afficher le mot de passe" aria-pressed="false">Voir</button><button id="copy-password" type="button" aria-label="Copier le mot de passe" disabled>Copier</button></div>
+            <p class="field-help copy-feedback" id="copy-feedback" role="status" aria-live="polite"></p>
+            <div class="generator-tools"><button class="button generate-button" id="generate-password" type="button"><span aria-hidden="true">✧</span> Générer</button><label for="generator-length">Longueur<select id="generator-length"><option value="8">8</option><option value="12">12</option><option value="16">16</option><option value="20" selected>20</option><option value="24">24</option><option value="32">32</option><option value="48">48</option><option value="64">64</option><option value="96">96</option><option value="128">128</option></select></label><label class="generator-symbols"><input type="checkbox" id="generator-symbols" checked> Symboles</label><label class="generator-compatible"><input type="checkbox" id="generator-compatible" aria-describedby="generator-help" checked> Compatible AZERTY + QWERTY</label></div>
+            <p class="generator-note" id="generator-help">Même saisie sur AZERTY français PC et QWERTY US : sans chiffres ni lettres A/Q/W/Z/M. Symboles limités à + et =.</p>
+            <p class="generator-note" id="generation-feedback" aria-live="polite">Génération locale · les options s’appliquent à la prochaine génération.</p>
+            <p class="field-help" id="password-help">1 à 128 caractères : lettres sans accent, chiffres, espaces et symboles ASCII.</p>
+
+            <div class="field-row"><div><label class="field-label" for="layout">Clavier de l’ordinateur</label><select id="layout"><option value="fr">FR · AZERTY français</option><option value="us">US · QWERTY américain</option></select></div><div id="boot-delay-setting"><label class="field-label" for="delay">Délai au branchement</label><div class="number-field"><input id="delay" type="number" min="1" max="30" step="1" value="5" required><span>secondes</span></div></div></div>
+
+            <details class="advanced-options"><summary>Options de saisie <span>+</span></summary><div class="advanced-content"><div><label class="field-label" for="interval">Entre chaque touche</label><div class="number-field"><input id="interval" type="number" min="10" max="200" step="1" value="30" required><span>ms</span></div></div><label class="switch-row" for="press-enter"><span><strong>Ajouter Entrée</strong><small>Valider après le mot de passe.</small></span><input id="press-enter" type="checkbox" role="switch"><span class="switch-track" aria-hidden="true"></span></label></div></details>
+            <div class="form-footer"><p id="config-status">Connectez la carte ou installez son firmware pour commencer.</p><button class="button primary full" id="save-button" type="submit" disabled>Enregistrer sur la carte <span>↗</span></button><span class="save-note">Les réglages restent dans la carte, même sans la web app.</span></div>
+          </form>
+        </section>
+
+        <section class="panel tab-view" id="view-install" role="tabpanel" aria-labelledby="tab-install" hidden>
+          <div class="section-heading"><div><h2>Préparez votre carte.</h2><p>Un premier flash, puis les réglages se font en quelques clics.</p></div><span class="section-symbol">↓</span></div>
+          <div class="install-step"><span class="step-number">1</span><div><h3>Les outils Arduino</h3><p>À installer une seule fois. Internet est nécessaire pour cette étape.</p></div><span id="tools-badge" class="badge">Vérification…</span></div><button class="button secondary full" id="install-button" type="button">Installer les outils <span>↓</span></button>
+          <div class="form-divider"></div>
+          <div class="install-step"><span class="step-number">2</span><div><h3>La version de votre Pro Micro</h3><p>Votre modèle ARCELI USB-C utilise le profil 5 V / 16 MHz.</p></div></div>
+          <label class="field-label" for="board">Variante physique de la carte</label><select id="board"><option value="">Choisir la variante…</option><option value="5v16" selected>5 V / 16 MHz</option><option value="3v8">3,3 V / 8 MHz</option></select><p class="field-help" id="board-profile-hint">Vérifiez l’inscription sur la carte avant de flasher.</p>
+          <button class="button primary full flash-main" id="flash-button" type="button" disabled>Flasher le firmware <span>↗</span></button><p class="field-help">Le programme actuel sera remplacé. Un mot de passe déjà enregistré par cette application sera conservé.</p>
+          <details class="recovery-options"><summary>Carte non détectée après un flash ? <span>↻</span></summary><p>Le mode récupération permet de rétablir la connexion après un flash à la mauvaise fréquence. Choisissez la bonne variante ci-dessus, puis lancez la récupération.</p><div class="reset-instruction">Carte branchée, faites <strong>deux contacts rapides entre RST et GND</strong> quand le journal affiche « Récupération prête ».</div><button class="button secondary full" id="recover-button" type="button" disabled>Récupérer via RESET <span>↻</span></button></details>
+        </section>
+
+        <section class="panel tab-view" id="view-test" role="tabpanel" aria-labelledby="tab-test" hidden>
+          <div class="section-heading"><div><h2>Prêt à essayer ?</h2><p>Vérifiez la saisie dans ce champ avant de l’utiliser ailleurs.</p></div><span class="section-symbol">✓</span></div>
+          <ol class="test-steps"><li><span>1</span><div><strong>Enregistrez vos réglages</strong><p>Une confirmation indique que la carte est prête.</p></div></li><li><span>2</span><div><strong>Débranchez la carte</strong><p>Le rebranchement active les nouveaux réglages.</p></div></li><li><span>3</span><div><strong>Cliquez dans le champ ci-dessous</strong><p id="test-instruction">Rebranchez la carte. Elle tape après le délai choisi.</p></div></li></ol>
+          <label class="field-label" for="test-input">Zone de test · saisie masquée</label><input class="test-input" type="password" id="test-input" autocomplete="new-password" placeholder="Placez le curseur ici avant de rebrancher"><div class="test-footer"><span id="test-count">0 caractère reçu</span><button id="clear-test" type="button">Vider le champ</button></div><p class="field-help">Ce champ n’envoie rien au serveur. Le mot de passe reste masqué.</p>
+        </section>
+      </div>
+
+      <aside class="board-column"><section class="board-panel"><div class="board-panel-top"><span>VOTRE PRO MICRO</span><span class="badge" id="board-mode-label">USB</span></div>
+        <div class="board-visual" id="board-visual"><svg id="pinout" viewBox="0 0 400 430" role="group" aria-label="Schéma interactif des broches du Pro Micro, USB vers le haut">
+          <image href="{{ url_for('static', filename='images/pro-micro.svg') }}" x="100" y="10" width="200" height="392.5714" aria-hidden="true"/>
+          {% for row in pin_rows %}{% set y = 74 + loop.index0 * 28.5714286 %}{% for pin, label in row %}{% set left = loop.index0 == 0 %}
+          <g class="diagram-pin{% if pin is none %} fixed-pin{% endif %}{% if label == 'GND' %} ground-pin{% endif %}{% if label == 'GND' and not left %} reset-ground{% endif %}{% if label == 'RST' %} reset-pin{% endif %}"{% if pin is not none %} data-pin="{{ pin }}" role="button" tabindex="0" aria-label="Choisir la broche {{ pins[pin] }}" aria-pressed="false"{% endif %}>
+            <rect class="pin-hitbox" x="{{ 12 if left else 276 }}" y="{{ y - 13 }}" width="112" height="26" rx="5"/>
+            <circle class="pin-ring" cx="{{ 114.2857 if left else 285.7143 }}" cy="{{ y }}" r="10"/><circle class="pin-center" cx="{{ 114.2857 if left else 285.7143 }}" cy="{{ y }}" r="4.8"/>
+            <text class="pin-label" x="{{ 93 if left else 307 }}" y="{{ y + 4 }}" text-anchor="{{ 'end' if left else 'start' }}">{{ label }}</text>
+          </g>{% endfor %}{% endfor %}
+          <text class="orientation-label" x="200" y="423" text-anchor="middle">VUE DE DESSUS · USB VERS LE HAUT</text>
+        </svg></div>
+        <div class="board-status"><span class="status-dot"></span><span id="selection-description">Saisie automatique au branchement</span></div>
+        <div id="wiring-card" class="wiring-card" hidden><div class="wiring-title">LE BRANCHEMENT DU BOUTON</div><div class="wiring-diagram"><span class="wire-pin" id="wire-pin">D4</span><i></i><span class="wire-button">Bouton</span><i></i><span class="wire-ground">GND</span></div><p>Un bouton poussoir normalement ouvert. Une saisie par appui, aucune répétition si vous le maintenez.</p></div>
+        <div class="usb-explanation" id="usb-explanation"><span>↳</span><p>Branchez la carte, placez le curseur.<br>Le mot de passe est saisi après le délai choisi.</p></div>
+        <div class="reset-guide" id="reset-guide" hidden><strong>Deux contacts rapides, puis relâcher.</strong><p>Carte branchée en USB, reliez brièvement <b>RST</b> et <b>GND</b> deux fois. Retirez ensuite le contact : les broches doivent rester séparées pendant le flash.</p><span>Pour récupérer la carte, lancez d’abord « Récupérer via RESET » dans Installer.</span></div>
+        <button class="reset-guide-button" id="toggle-reset-guide" type="button" aria-pressed="false"><span>↻</span> Afficher le repère RESET</button>
+      </section><div class="device-summary" id="device-state">Aucun mot de passe n’est chargé sur cet ordinateur.</div><p class="privacy-note">Le secret est stocké en clair dans la carte.<br>Gardez votre Pro Micro comme une clé physique.</p></aside>
+    </div>
+
+    <details class="journal" id="journal"><summary><span><span class="terminal-icon">&gt;_</span> Journal d’activité</span><span class="badge" id="job-status">Prêt</span></summary><pre id="log" aria-live="polite">En attente d’une opération. Aucun mot de passe n’apparaît dans ce journal.</pre></details>
+    <footer><span>PRO MICRO KEY <i>·</i> LOCAL PAR NATURE</span><button id="clear-button" type="button" disabled>Effacer le mot de passe de la carte</button></footer>
+  </main>
+  <dialog id="flash-dialog"><span class="eyebrow">INSTALLATION DU FIRMWARE</span><h2>La carte est prête ?</h2><p>Le programme actuel sera remplacé. Le mot de passe déjà enregistré par cette application sera conservé.</p><div class="flash-summary"><span>PORT USB<strong id="flash-port"></strong></span><span>VARIANTE<strong id="flash-board"></strong></span></div><p class="field-help">Gardez la carte branchée pendant le flash.</p><div class="dialog-buttons"><button class="button secondary" id="cancel-flash" type="button">Annuler</button><button class="button primary" id="confirm-flash" type="button">Flasher cette carte ↗</button></div></dialog>
+</body>
+</html>
